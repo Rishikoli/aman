@@ -1,0 +1,137 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: aman_postgres
+    environment:
+      POSTGRES_DB: aman_db
+      POSTGRES_USER: aman_user
+      POSTGRES_PASSWORD: aman_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+    networks:
+      - aman_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aman_user -d aman_db"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis Cache and Message Queue
+  redis:
+    image: redis:7-alpine
+    container_name: aman_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - aman_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Backend API Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: aman_backend
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://aman_user:aman_password@postgres:5432/aman_db
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - aman_network
+    restart: unless-stopped
+
+  # Python Agents Service
+  agents:
+    build:
+      context: ./agents
+      dockerfile: Dockerfile
+    container_name: aman_agents
+    environment:
+      - DATABASE_URL=postgresql://aman_user:aman_password@postgres:5432/aman_db
+      - REDIS_URL=redis://redis:6379
+      - PYTHONPATH=/app
+    volumes:
+      - ./agents:/app
+      - ./temp:/app/temp
+      - ./processing:/app/processing
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - aman_network
+    restart: unless-stopped
+
+  # Frontend Next.js Application
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: aman_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_BASE_URL=http://localhost:3001
+      - NEXT_PUBLIC_APP_NAME=Autonomous M&A Navigator
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - backend
+    networks:
+      - aman_network
+    restart: unless-stopped
+
+  # Apache Superset for Advanced Analytics
+  superset:
+    image: apache/superset:latest
+    container_name: aman_superset
+    ports:
+      - "8088:8088"
+    environment:
+      - SUPERSET_SECRET_KEY=aman_superset_secret_key
+      - SUPERSET_CONFIG_PATH=/app/superset_config.py
+    volumes:
+      - ./docker/superset:/app
+      - superset_data:/app/superset_home
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - aman_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  superset_data:
+
+networks:
+  aman_network:
+    driver: bridge
