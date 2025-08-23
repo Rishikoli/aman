@@ -1,0 +1,58 @@
+{
+  "name": "Code Quality Check",
+  "description": "Automatically review code quality and suggest improvements when TypeScript/JavaScript files are saved",
+  "trigger": {
+    "type": "file_save",
+    "patterns": [
+      "frontend/**/*.ts",
+      "frontend/**/*.tsx",
+      "frontend/**/*.js",
+      "frontend/**/*.jsx",
+      "backend/**/*.js",
+      "backend/**/*.ts"
+    ]
+  },
+  "conditions": [
+    {
+      "type": "file_size",
+      "operator": ">",
+      "value": 100,
+      "description": "Only check files with substantial content"
+    },
+    {
+      "type": "git_status",
+      "operator": "modified",
+      "description": "Only check modified files"
+    }
+  ],
+  "actions": [
+    {
+      "type": "agent_execution",
+      "agent": "code_reviewer",
+      "prompt": "Review this code file for:\n1. TypeScript/JavaScript best practices\n2. Security vulnerabilities\n3. Performance optimizations\n4. Code maintainability\n5. Accessibility compliance (for React components)\n6. Error handling improvements\n\nProvide specific, actionable suggestions with code examples where helpful.",
+      "context": {
+        "include_files": true,
+        "file_path": "{{trigger.file_path}}",
+        "file_type": "{{trigger.file_extension}}",
+        "project_context": "M&A Navigator - React/Next.js frontend with Node.js backend"
+      }
+    },
+    {
+      "type": "create_comment",
+      "location": "file",
+      "message": "🤖 Code review completed. Check the agent output for suggestions."
+    }
+  ],
+  "settings": {
+    "enabled": true,
+    "debounce_ms": 2000,
+    "max_executions_per_hour": 20,
+    "retry_on_failure": false,
+    "run_in_background": true
+  },
+  "metadata": {
+    "created_at": "2025-01-27T00:00:00Z",
+    "version": "1.0.0",
+    "tags": ["code-quality", "review", "typescript", "javascript", "automation"]
+  }
+}

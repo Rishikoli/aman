@@ -3,6 +3,52 @@
  * Only NEXT_PUBLIC_ prefixed variables are available in the browser
  */
 
+// TypeScript interfaces for configuration
+interface AppConfig {
+  name: string;
+  version: string;
+  apiBaseUrl: string;
+}
+
+interface ExternalConfig {
+  supersetUrl?: string;
+}
+
+interface DevelopmentConfig {
+  enableDebug: boolean;
+  logLevel: string;
+}
+
+interface UIConfig {
+  chartTheme: string;
+  defaultCurrency: string;
+}
+
+interface UploadConfig {
+  maxFileSize: string;
+  allowedFileTypes: string[];
+}
+
+interface FeaturesConfig {
+  enableAnalytics: boolean;
+  enableNotifications: boolean;
+}
+
+export interface Config {
+  app: AppConfig;
+  external: ExternalConfig;
+  development: DevelopmentConfig;
+  ui: UIConfig;
+  upload: UploadConfig;
+  features: FeaturesConfig;
+}
+
+interface ValidationResult {
+  success: boolean;
+  missing: string[];
+  warnings: string[];
+}
+
 // Required environment variables for frontend
 const requiredEnvVars = [
   'NEXT_PUBLIC_API_BASE_URL',
@@ -25,11 +71,11 @@ const optionalEnvVars = [
 
 /**
  * Validates that all required environment variables are present
- * @returns {Object} Validation result with success status and missing variables
+ * @returns {ValidationResult} Validation result with success status and missing variables
  */
-function validateEnvironment() {
-  const missing = [];
-  const warnings = [];
+function validateEnvironment(): ValidationResult {
+  const missing: string[] = [];
+  const warnings: string[] = [];
 
   // Check required variables
   requiredEnvVars.forEach(varName => {
@@ -54,9 +100,9 @@ function validateEnvironment() {
 
 /**
  * Gets frontend environment configuration with defaults
- * @returns {Object} Environment configuration object
+ * @returns {Config} Environment configuration object
  */
-function getConfig() {
+function getConfig(): Config {
   const validation = validateEnvironment();
   
   if (!validation.success) {
@@ -71,9 +117,9 @@ function getConfig() {
   return {
     // App Configuration
     app: {
-      name: process.env.NEXT_PUBLIC_APP_NAME,
+      name: process.env.NEXT_PUBLIC_APP_NAME!,
       version: process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0',
-      apiBaseUrl: process.env.NEXT_PUBLIC_API_BASE_URL
+      apiBaseUrl: process.env.NEXT_PUBLIC_API_BASE_URL!
     },
     
     // External Services
@@ -109,9 +155,9 @@ function getConfig() {
 
 /**
  * Hook for React components to access environment config
- * @returns {Object} Environment configuration
+ * @returns {Config} Environment configuration
  */
-export function useEnvConfig() {
+export function useEnvConfig(): Config {
   return getConfig();
 }
 

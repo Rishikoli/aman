@@ -5,6 +5,11 @@ const router = express.Router();
 const dealsRoutes = require('./deals');
 const companiesRoutes = require('./companies');
 const agentsRoutes = require('./agents');
+const taskQueueRoutes = require('./taskQueue');
+const timelineRoutes = require('./timeline');
+const financialRoutes = require('./financial');
+const intelligentFinancialRoutes = require('./intelligentFinancial');
+const aiRoutes = require('../ai');
 
 // API version info
 router.get('/', (req, res) => {
@@ -15,7 +20,12 @@ router.get('/', (req, res) => {
     endpoints: {
       deals: '/api/v1/deals',
       companies: '/api/v1/companies',
-      agents: '/api/v1/agents'
+      agents: '/api/v1/agents',
+      taskQueue: '/api/v1/task-queue',
+      timeline: '/api/v1/timeline',
+      financial: '/api/v1/financial',
+      intelligentFinancial: '/api/v1/intelligent-financial',
+      ai: '/api/v1/ai'
     }
   });
 });
@@ -24,5 +34,10 @@ router.get('/', (req, res) => {
 router.use('/deals', dealsRoutes);
 router.use('/companies', companiesRoutes);
 router.use('/agents', agentsRoutes);
+router.use('/task-queue', taskQueueRoutes);
+router.use('/timeline', timelineRoutes);
+router.use('/financial', financialRoutes);
+router.use('/intelligent-financial', intelligentFinancialRoutes);
+router.use('/ai', aiRoutes);
 
 module.exports = router;

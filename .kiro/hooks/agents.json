@@ -1,0 +1,76 @@
+{
+  "agents": {
+    "deal_analyzer": {
+      "name": "Deal Analyzer",
+      "description": "Comprehensive M&A deal analysis agent",
+      "capabilities": [
+        "financial_analysis",
+        "risk_assessment",
+        "synergy_identification",
+        "market_intelligence"
+      ],
+      "model": "gemini-2.0-flash",
+      "max_tokens": 4000,
+      "temperature": 0.3
+    },
+    "code_reviewer": {
+      "name": "Code Reviewer",
+      "description": "Code quality and security review agent",
+      "capabilities": [
+        "code_analysis",
+        "security_review",
+        "performance_optimization",
+        "best_practices"
+      ],
+      "model": "gemini-2.0-flash",
+      "max_tokens": 2000,
+      "temperature": 0.2
+    },
+    "document_analyzer": {
+      "name": "Document Analyzer",
+      "description": "Intelligent document processing and extraction agent",
+      "capabilities": [
+        "document_parsing",
+        "information_extraction",
+        "content_summarization",
+        "structured_analysis"
+      ],
+      "model": "gemini-2.0-flash",
+      "max_tokens": 6000,
+      "temperature": 0.1
+    },
+    "financial_analyst": {
+      "name": "Financial Analyst",
+      "description": "Specialized financial analysis and modeling agent",
+      "capabilities": [
+        "financial_modeling",
+        "ratio_analysis",
+        "valuation",
+        "forecasting"
+      ],
+      "model": "gemini-2.0-flash",
+      "max_tokens": 3000,
+      "temperature": 0.2
+    },
+    "legal_reviewer": {
+      "name": "Legal Reviewer",
+      "description": "Legal document review and compliance analysis agent",
+      "capabilities": [
+        "contract_analysis",
+        "compliance_review",
+        "risk_identification",
+        "regulatory_analysis"
+      ],
+      "model": "gemini-2.0-flash",
+      "max_tokens": 4000,
+      "temperature": 0.1
+    }
+  },
+  "global_settings": {
+    "default_timeout": 60,
+    "max_concurrent_executions": 3,
+    "log_level": "info",
+    "enable_caching": true,
+    "cache_duration_minutes": 30
+  }
+}

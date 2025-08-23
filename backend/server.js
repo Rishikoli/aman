@@ -8,6 +8,7 @@ require('dotenv').config();
 
 const { validateEnv } = require('./utils/env-config');
 const { connectDB } = require('./utils/database');
+const taskQueue = require('./services/taskQueue');
 
 // Validate environment variables on startup
 validateEnv();
@@ -55,7 +56,7 @@ app.get('/health', (req, res) => {
 });
 
 // API routes
-app.use('/api/v1', require('./api/routes'));
+app.use('/api/v1', require('./api/routes/index'));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -98,13 +99,15 @@ async function startServer() {
 }
 
 // Graceful shutdown
-process.on('SIGTERM', () => {
+process.on('SIGTERM', async () => {
   console.log('SIGTERM received, shutting down gracefully');
+  await taskQueue.close();
   process.exit(0);
 });
 
-process.on('SIGINT', () => {
+process.on('SIGINT', async () => {
   console.log('SIGINT received, shutting down gracefully');
+  await taskQueue.close();
   process.exit(0);
 });
 

@@ -1,71 +1,67 @@
-const { Pool } = require('pg');
-const { getConfig } = require('./env-config');
+// Enhanced database utilities using the new DatabaseManager
+// This file maintains backward compatibility while providing enhanced functionality
 
-let pool = null;
+const { 
+  connectDB: enhancedConnectDB,
+  query: enhancedQuery,
+  getClient: enhancedGetClient,
+  closeDB: enhancedCloseDB,
+  getPool: enhancedGetPool,
+  initializeDatabaseManager,
+  healthCheck,
+  getPoolMetrics
+} = require('../database');
+
+// Legacy compatibility layer
+let isEnhancedManagerInitialized = false;
 
 /**
- * Initialize PostgreSQL connection pool
- * @returns {Pool} PostgreSQL connection pool
+ * Initialize enhanced database manager if not already done
+ * @private
  */
-function initializePool() {
-  if (pool) {
-    return pool;
+async function ensureEnhancedManager() {
+  if (!isEnhancedManagerInitialized) {
+    try {
+      await initializeDatabaseManager();
+      isEnhancedManagerInitialized = true;
+      console.log('Enhanced database manager initialized');
+    } catch (error) {
+      console.error('Failed to initialize enhanced database manager:', error.message);
+      throw error;
+    }
   }
-
-  const config = getConfig();
-  
-  // Create connection pool
-  pool = new Pool({
-    host: config.database.host,
-    port: config.database.port,
-    database: config.database.name,
-    user: config.database.user,
-    password: config.database.password,
-    max: 20, // Maximum number of clients in the pool
-    idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
-    connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection could not be established
-    maxUses: 7500, // Close (and replace) a connection after it has been used 7500 times
-  });
-
-  // Handle pool errors
-  pool.on('error', (err) => {
-    console.error('Unexpected error on idle client', err);
-    process.exit(-1);
-  });
-
-  return pool;
 }
 
 /**
- * Get database connection pool
- * @returns {Pool} PostgreSQL connection pool
+ * Initialize PostgreSQL connection pool (legacy compatibility)
+ * @returns {Object} Pool-like object with enhanced functionality
+ * @deprecated Use initializeDatabaseManager() instead
+ */
+async function initializePool() {
+  await ensureEnhancedManager();
+  return enhancedGetPool();
+}
+
+/**
+ * Get database connection pool (legacy compatibility)
+ * @returns {Object} Pool-like object with enhanced functionality
+ * @deprecated Use getDatabaseManager() instead
  */
 function getPool() {
-  if (!pool) {
-    return initializePool();
+  if (!isEnhancedManagerInitialized) {
+    console.warn('Enhanced database manager not initialized. Call connectDB() first.');
+    return null;
   }
-  return pool;
+  return enhancedGetPool();
 }
 
 /**
  * Connect to database and test connection
- * @returns {Promise<void>}
+ * @returns {Promise<Object>} Database manager instance
  */
 async function connectDB() {
-  try {
-    const dbPool = getPool();
-    
-    // Test the connection
-    const client = await dbPool.connect();
-    const result = await client.query('SELECT NOW()');
-    client.release();
-    
-    console.log('Database connection established at:', result.rows[0].now);
-    return dbPool;
-  } catch (error) {
-    console.error('Database connection failed:', error.message);
-    throw error;
-  }
+  await ensureEnhancedManager();
+  return await enhancedConnectDB();
 }
 
 /**
@@ -75,19 +71,8 @@ async function connectDB() {
  * @returns {Promise<Object>} Query result
  */
 async function query(text, params = []) {
-  const dbPool = getPool();
-  const start = Date.now();
-  
-  try {
-    const result = await dbPool.query(text, params);
-    const duration = Date.now() - start;
-    
-    console.log('Executed query', { text, duration, rows: result.rowCount });
-    return result;
-  } catch (error) {
-    console.error('Query error:', { text, error: error.message });
-    throw error;
-  }
+  await ensureEnhancedManager();
+  return await enhancedQuery(text, params);
 }
 
 /**
@@ -95,8 +80,8 @@ async function query(text, params = []) {
  * @returns {Promise<Object>} Database client
  */
 async function getClient() {
-  const dbPool = getPool();
-  return await dbPool.connect();
+  await ensureEnhancedManager();
+  return await enhancedGetClient();
 }
 
 /**
@@ -104,10 +89,10 @@ async function getClient() {
  * @returns {Promise<void>}
  */
 async function closeDB() {
-  if (pool) {
-    await pool.end();
-    pool = null;
-    console.log('Database connections closed');
+  if (isEnhancedManagerInitialized) {
+    await enhancedCloseDB();
+    isEnhancedManagerInitialized = false;
+    console.log('Enhanced database connections closed');
   }
 }
 
