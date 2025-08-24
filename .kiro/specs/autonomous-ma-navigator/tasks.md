@@ -173,15 +173,26 @@
     - Build comprehensive financial risk scoring with ML-based insights
     - _Requirements: 2.1, 2.5_
 
-- [ ] 5. Develop Legal & Compliance Agent with comprehensive legal intelligence
-  - [ ] 5.1 Implement multi-source legal data integration
+- [] 5. Develop Legal & Compliance Agent with comprehensive legal intelligence
+
+
+
+
+
+
+
+  - [] 5.1 Implement multi-source legal data integration
+
+
     - Create SEC EDGAR API client for full-text legal filings (10-K, 8-K, etc.)
     - Integrate USPTO APIs for intellectual property due diligence (patents & trademarks)
     - Set up OpenCorporates API for corporate structure and ownership verification
     - Add comprehensive error handling and API rate limiting for all sources
     - _Requirements: 3.1, 3.2_
 
-  - [ ] 5.2 Build AI-powered legal analysis engine
+  - [] 5.2 Build AI-powered legal analysis engine
+
+
     - Create spaCy/Hugging Face NLP pipeline for extracting specific clauses and entities
     - Implement legal risk scoring and categorization algorithms
     - Integrate Gemini API for complex legal reasoning and nuanced question answering
@@ -189,25 +200,44 @@
     - _Requirements: 3.2, 3.3, 3.4, 3.5_
 
 - [ ] 6. Create AI-Enhanced Synergy Agent for strategic opportunity identification
-  - [ ] 6.1 Implement market and competitive intelligence
+  - [x] 6.1 Implement market and competitive intelligence
+
+
+
+
+
     - Integrate Google Trends API (pytrends) for market interest validation of revenue synergies
     - Set up SimilarWeb/BuiltWith APIs for website traffic and tech stack overlap analysis
     - Build competitive positioning analysis using market data
     - _Requirements: 6.1, 6.2_
 
-  - [ ] 6.2 Build intelligent synergy discovery system
+  - [x] 6.2 Build intelligent synergy discovery system
+
+
+
+
+
+
+
     - Create pandas/NumPy-based financial modeling for cost synergy calculations
     - Integrate Gemini API for brainstorming strategic and creative synergy opportunities
     - Implement synergy value estimation with confidence intervals
     - Build integration timeline and risk modeling
     - _Requirements: 6.4, 6.5_
 
-- [ ] 7. Develop AI-Powered Reputation Agent with comprehensive sentiment analysis
-  - [ ] 7.1 Implement multi-platform reputation data collection
+- [-] 7. Develop AI-Powered Reputation Agent with comprehensive sentiment analysis
+
+
+
+  - [x] 7.1 Implement multi-platform reputation data collection
+
+
     - Create NewsAPI integration for gathering news articles and sentiment analysis
     - Set up X API (PRAW) for social media and forum discussions
     - Build web scraping pipeline for additional reputation sources
     - _Requirements: 7.1, 7.3_
+
+
 
   - [ ] 7.2 Build intelligent sentiment analysis system
     - Implement VADER for lightweight, high-volume sentiment scoring

@@ -11,16 +11,18 @@ load_dotenv()
 
 # Required environment variables
 REQUIRED_ENV_VARS = [
-    'DATABASE_URL',
-    'REDIS_URL'
+    'DATABASE_URL'
 ]
 
 # Optional environment variables
 OPTIONAL_ENV_VARS = [
     'FMP_API_KEY',
-    'OPENAI_API_KEY',
+
     'NEWS_API_KEY',
     'TWITTER_BEARER_TOKEN',
+    'USPTO_API_KEY',
+    'OPENCORPORATES_API_KEY',
+    'GEMINI_API_KEY',
     'PYTHONPATH',
     'LOG_LEVEL',
     'AGENT_TIMEOUT',
@@ -77,17 +79,24 @@ def get_config() -> Dict:
             'url': os.getenv('DATABASE_URL')
         },
         
-        # Redis
+        # Redis Configuration
         'redis': {
-            'url': os.getenv('REDIS_URL')
+            'url': os.getenv('REDIS_URL', 'redis://localhost:6379/0'),
+            'decode_responses': True,
+            'socket_timeout': 5,
+            'socket_connect_timeout': 5,
+            'retry_on_timeout': True
         },
         
         # API Keys
         'api_keys': {
             'fmp': os.getenv('FMP_API_KEY'),
-            'openai': os.getenv('OPENAI_API_KEY'),
+        
             'news': os.getenv('NEWS_API_KEY'),
-            'twitter': os.getenv('TWITTER_BEARER_TOKEN')
+            'twitter': os.getenv('TWITTER_BEARER_TOKEN'),
+            'uspto': os.getenv('USPTO_API_KEY'),
+            'opencorporates': os.getenv('OPENCORPORATES_API_KEY'),
+            'gemini': os.getenv('GEMINI_API_KEY')
         },
         
         # Python Environment
