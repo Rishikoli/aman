@@ -197,20 +197,20 @@ class SentimentAnalyzer:
             platform_sentiments = {}
             all_sentiments = []
             
-            # Analyze Twitter mentions
-            twitter_data = social_data.get('twitter', {})
-            if twitter_data.get('mentions'):
-                twitter_sentiments = []
-                for mention in twitter_data['mentions']:
-                    sentiment = self.analyze_text_sentiment(mention.get('text', ''))
-                    twitter_sentiments.append(sentiment['combined_sentiment'])
+            # Analyze Hacker News mentions
+            hackernews_data = social_data.get('hackernews', {})
+            if hackernews_data.get('mentions'):
+                hackernews_sentiments = []
+                for mention in hackernews_data['mentions']:
+                    sentiment = self.analyze_text_sentiment(mention.get('title', ''))
+                    hackernews_sentiments.append(sentiment['combined_sentiment'])
                 
-                platform_sentiments['twitter'] = {
-                    'count': len(twitter_sentiments),
-                    'average_sentiment': statistics.mean(twitter_sentiments) if twitter_sentiments else 0,
-                    'sentiment_distribution': self._calculate_sentiment_distribution(twitter_sentiments)
+                platform_sentiments['hackernews'] = {
+                    'count': len(hackernews_sentiments),
+                    'average_sentiment': statistics.mean(hackernews_sentiments) if hackernews_sentiments else 0,
+                    'sentiment_distribution': self._calculate_sentiment_distribution(hackernews_sentiments)
                 }
-                all_sentiments.extend(twitter_sentiments)
+                all_sentiments.extend(hackernews_sentiments)
             
             # Analyze Reddit discussions
             reddit_data = social_data.get('reddit', {})

@@ -9,8 +9,6 @@ import logging
 import requests
 from typing import Dict, List, Optional, Any
 from datetime import datetime, timedelta
-import tweepy
-
 # Add the agents directory to the Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -25,70 +23,9 @@ class SocialMediaCollector:
     
     def __init__(self):
         """Initialize the Social Media Collector"""
-        self.twitter_bearer_token = CONFIG['api_keys']['twitter']
-        self.twitter_client = None
-        
-        if self.twitter_bearer_token:
-            try:
-                self.twitter_client = tweepy.Client(bearer_token=self.twitter_bearer_token)
-                logger.info("Twitter API client initialized successfully")
-            except Exception as e:
-                logger.warning(f"Failed to initialize Twitter API client: {e}")
-        else:
-            logger.warning("TWITTER_BEARER_TOKEN not found in environment variables")
+        logger.info("Social Media Collector initialized with Reddit and Hacker News")
     
-    def collect_twitter_mentions(self, company_name: str, max_results: int = 100) -> List[Dict[str, Any]]:
-        """
-        Collect Twitter mentions of a company
-        
-        Args:
-            company_name: Name of the company to search for
-            max_results: Maximum number of tweets to collect
-            
-        Returns:
-            List of tweets with metadata
-        """
-        tweets = []
-        
-        if not self.twitter_client:
-            logger.warning("Twitter client not available, skipping Twitter collection")
-            return tweets
-        
-        try:
-            # Search for recent tweets mentioning the company
-            query = f'"{company_name}" -is:retweet lang:en'
-            
-            response = self.twitter_client.search_recent_tweets(
-                query=query,
-                max_results=min(max_results, 100),  # API limit
-                tweet_fields=['created_at', 'author_id', 'public_metrics', 'context_annotations', 'lang'],
-                user_fields=['username', 'verified', 'public_metrics']
-            )
-            
-            if response.data:
-                for tweet in response.data:
-                    formatted_tweet = {
-                        'id': tweet.id,
-                        'text': tweet.text,
-                        'created_at': tweet.created_at.isoformat() if tweet.created_at else '',
-                        'author_id': tweet.author_id,
-                        'retweet_count': tweet.public_metrics.get('retweet_count', 0) if tweet.public_metrics else 0,
-                        'like_count': tweet.public_metrics.get('like_count', 0) if tweet.public_metrics else 0,
-                        'reply_count': tweet.public_metrics.get('reply_count', 0) if tweet.public_metrics else 0,
-                        'quote_count': tweet.public_metrics.get('quote_count', 0) if tweet.public_metrics else 0,
-                        'lang': tweet.lang,
-                        'data_source': 'Twitter',
-                        'company_name': company_name,
-                        'collected_at': datetime.now().isoformat()
-                    }
-                    tweets.append(formatted_tweet)
-            
-            logger.info(f"Collected {len(tweets)} Twitter mentions for {company_name}")
-            
-        except Exception as e:
-            logger.error(f"Error collecting Twitter mentions for {company_name}: {e}")
-        
-        return tweets
+
     
     def collect_reddit_discussions(self, company_name: str, subreddits: List[str] = None) -> List[Dict[str, Any]]:
         """
@@ -186,6 +123,62 @@ class SocialMediaCollector:
         
         return mentions
     
+    def collect_hackernews_mentions(self, company_name: str, max_results: int = 50) -> List[Dict[str, Any]]:
+        """
+        Collect Hacker News mentions of a company
+        
+        Args:
+            company_name: Name of the company to search for
+            max_results: Maximum number of posts to collect
+            
+        Returns:
+            List of Hacker News posts mentioning the company
+        """
+        mentions = []
+        
+        try:
+            # Hacker News Algolia API (no authentication required)
+            search_url = "https://hn.algolia.com/api/v1/search"
+            params = {
+                'query': company_name,
+                'tags': 'story',
+                'hitsPerPage': min(max_results, 50),
+                'numericFilters': f'created_at_i>{int((datetime.now() - timedelta(days=30)).timestamp())}'
+            }
+            
+            headers = {
+                'User-Agent': 'AMAN-ReputationAgent/1.0'
+            }
+            
+            response = requests.get(search_url, params=params, headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                for hit in data.get('hits', []):
+                    formatted_mention = {
+                        'id': hit.get('objectID', ''),
+                        'title': hit.get('title', ''),
+                        'url': hit.get('url', ''),
+                        'hn_url': f"https://news.ycombinator.com/item?id={hit.get('objectID', '')}",
+                        'score': hit.get('points', 0),
+                        'num_comments': hit.get('num_comments', 0),
+                        'author': hit.get('author', ''),
+                        'created_at': hit.get('created_at', ''),
+                        'tags': hit.get('_tags', []),
+                        'data_source': 'HackerNews',
+                        'company_name': company_name,
+                        'collected_at': datetime.now().isoformat()
+                    }
+                    mentions.append(formatted_mention)
+            
+            logger.info(f"Collected {len(mentions)} Hacker News mentions for {company_name}")
+            
+        except Exception as e:
+            logger.error(f"Error collecting Hacker News mentions for {company_name}: {e}")
+        
+        return mentions
+
     def collect_youtube_mentions(self, company_name: str, max_results: int = 50) -> List[Dict[str, Any]]:
         """
         Collect YouTube video mentions using web scraping
@@ -247,8 +240,8 @@ class SocialMediaCollector:
             logger.info(f"Collecting social media mentions for {company_name}")
             
             # Collect from all platforms
-            twitter_mentions = self.collect_twitter_mentions(company_name)
             reddit_discussions = self.collect_reddit_discussions(company_name)
+            hackernews_mentions = self.collect_hackernews_mentions(company_name)
             linkedin_mentions = self.collect_linkedin_mentions(company_name)
             youtube_mentions = self.collect_youtube_mentions(company_name)
             
@@ -256,13 +249,13 @@ class SocialMediaCollector:
             aggregated_data = {
                 'company_name': company_name,
                 'collection_timestamp': datetime.now().isoformat(),
-                'twitter': {
-                    'count': len(twitter_mentions),
-                    'mentions': twitter_mentions
-                },
                 'reddit': {
                     'count': len(reddit_discussions),
                     'discussions': reddit_discussions
+                },
+                'hackernews': {
+                    'count': len(hackernews_mentions),
+                    'mentions': hackernews_mentions
                 },
                 'linkedin': {
                     'count': len(linkedin_mentions),
@@ -272,7 +265,7 @@ class SocialMediaCollector:
                     'count': len(youtube_mentions),
                     'videos': youtube_mentions
                 },
-                'total_mentions': len(twitter_mentions) + len(reddit_discussions) + len(linkedin_mentions) + len(youtube_mentions)
+                'total_mentions': len(reddit_discussions) + len(hackernews_mentions) + len(linkedin_mentions) + len(youtube_mentions)
             }
             
             logger.info(f"Collected {aggregated_data['total_mentions']} total social media mentions for {company_name}")

@@ -34,8 +34,8 @@ class ReputationScorer:
         
         # Platform-specific weights within social media
         self.social_platform_weights = {
-            'twitter': 0.4,
-            'reddit': 0.3,
+            'reddit': 0.4,
+            'hackernews': 0.3,
             'linkedin': 0.2,
             'youtube': 0.1
         }
@@ -220,17 +220,17 @@ class ReputationScorer:
             
             platform_scores = []
             
-            # Twitter score
-            twitter_data = social_data.get('twitter', {})
-            if twitter_data.get('count', 0) > 0:
-                twitter_score = self._score_social_platform(twitter_data)
-                platform_scores.append(twitter_score * self.social_platform_weights['twitter'])
-            
             # Reddit score
             reddit_data = social_data.get('reddit', {})
             if reddit_data.get('count', 0) > 0:
                 reddit_score = self._score_social_platform(reddit_data)
                 platform_scores.append(reddit_score * self.social_platform_weights['reddit'])
+            
+            # Hacker News score
+            hackernews_data = social_data.get('hackernews', {})
+            if hackernews_data.get('count', 0) > 0:
+                hackernews_score = self._score_social_platform(hackernews_data)
+                platform_scores.append(hackernews_score * self.social_platform_weights['hackernews'])
             
             # LinkedIn score
             linkedin_data = social_data.get('linkedin', {})
@@ -239,7 +239,9 @@ class ReputationScorer:
                 platform_scores.append(linkedin_score * self.social_platform_weights['linkedin'])
             
             if platform_scores:
-                return sum(platform_scores) / sum(self.social_platform_weights[p] for p in ['twitter', 'reddit', 'linkedin'] if social_data.get(p, {}).get('count', 0) > 0) * 100
+                active_platforms = [p for p in ['reddit', 'hackernews', 'linkedin', 'youtube'] if social_data.get(p, {}).get('count', 0) > 0]
+                total_weight = sum(self.social_platform_weights[p] for p in active_platforms)
+                return sum(platform_scores) / total_weight * 100
             
             return None
             

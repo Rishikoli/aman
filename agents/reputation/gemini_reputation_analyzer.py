@@ -31,7 +31,7 @@ class GeminiReputationAnalyzer:
             try:
                 import google.generativeai as genai
                 genai.configure(api_key=self.api_key)
-                self.client = genai.GenerativeModel('gemini-pro')
+                self.client = genai.GenerativeModel('gemini-2.0-flash-exp')
                 logger.info("Gemini AI client initialized successfully")
             except ImportError:
                 logger.warning("Google GenerativeAI library not installed. Install with: pip install google-generativeai")

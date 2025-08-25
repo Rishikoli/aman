@@ -93,7 +93,6 @@ def get_config() -> Dict:
             'fmp': os.getenv('FMP_API_KEY'),
         
             'news': os.getenv('NEWS_API_KEY'),
-            'twitter': os.getenv('TWITTER_BEARER_TOKEN'),
             'uspto': os.getenv('USPTO_API_KEY'),
             'opencorporates': os.getenv('OPENCORPORATES_API_KEY'),
             'gemini': os.getenv('GEMINI_API_KEY')
