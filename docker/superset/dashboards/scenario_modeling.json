@@ -1,0 +1,245 @@
+{
+  "dashboard_title": "M&A Scenario Modeling & What-If Analysis",
+  "description": "Interactive scenario modeling dashboard for M&A deal analysis with what-if capabilities",
+  "slug": "ma-scenario-modeling",
+  "published": true,
+  "json_metadata": {
+    "color_scheme": "d3Category20",
+    "refresh_frequency": 60,
+    "timed_refresh_immune_slices": [],
+    "expanded_slices": {},
+    "label_colors": {},
+    "shared_label_colors": {},
+    "color_scheme_domain": [],
+    "cross_filters_enabled": true,
+    "native_filter_configuration": [
+      {
+        "id": "scenario_filter",
+        "filterType": "filter_select",
+        "targets": [
+          {
+            "datasetId": 1,
+            "column": {
+              "name": "scenario_name"
+            }
+          }
+        ],
+        "defaultDataMask": {
+          "extraFormData": {},
+          "filterState": {
+            "value": "Base Case"
+          }
+        },
+        "name": "Scenario",
+        "description": "Select scenario for analysis"
+      },
+      {
+        "id": "deal_value_range",
+        "filterType": "filter_range",
+        "targets": [
+          {
+            "datasetId": 1,
+            "column": {
+              "name": "deal_value"
+            }
+          }
+        ],
+        "defaultDataMask": {
+          "extraFormData": {},
+          "filterState": {
+            "value": [0, 1000000000]
+          }
+        },
+        "name": "Deal Value Range",
+        "description": "Filter by deal value range"
+      },
+      {
+        "id": "synergy_multiplier",
+        "filterType": "filter_range",
+        "targets": [
+          {
+            "datasetId": 2,
+            "column": {
+              "name": "synergy_multiplier"
+            }
+          }
+        ],
+        "defaultDataMask": {
+          "extraFormData": {},
+          "filterState": {
+            "value": [0.8, 1.2]
+          }
+        },
+        "name": "Synergy Multiplier",
+        "description": "Adjust synergy assumptions (0.8 = 20% reduction, 1.2 = 20% increase)"
+      }
+    ]
+  },
+  "charts": [
+    {
+      "slice_name": "Deal Value Sensitivity Analysis",
+      "viz_type": "line",
+      "datasource": "scenario_analysis_view",
+      "params": {
+        "groupby": ["scenario_name"],
+        "metric": "projected_deal_value",
+        "granularity_sqla": "scenario_date",
+        "time_grain_sqla": "P1M",
+        "show_legend": true,
+        "line_interpolation": "linear",
+        "color_scheme": "bnbColors",
+        "y_axis_format": "$,.0f"
+      },
+      "description": "Deal value projections under different scenarios"
+    },
+    {
+      "slice_name": "Synergy Value Waterfall",
+      "viz_type": "bar",
+      "datasource": "synergy_breakdown_view",
+      "params": {
+        "groupby": ["synergy_type"],
+        "metric": "estimated_value",
+        "order_desc": true,
+        "show_legend": false,
+        "color_scheme": "googleCategory20c",
+        "y_axis_format": "$,.0f",
+        "show_bar_value": true
+      },
+      "description": "Breakdown of synergy values by type (cost savings, revenue synergies, etc.)"
+    },
+    {
+      "slice_name": "Risk-Adjusted NPV",
+      "viz_type": "bubble",
+      "datasource": "risk_adjusted_metrics",
+      "params": {
+        "x": "probability_of_success",
+        "y": "risk_adjusted_npv",
+        "size": "deal_value",
+        "groupby": ["deal_name"],
+        "color_scheme": "d3Category20",
+        "show_legend": true,
+        "x_axis_format": ".1%",
+        "y_axis_format": "$,.0f"
+      },
+      "description": "Risk-adjusted NPV vs probability of success with deal size as bubble size"
+    },
+    {
+      "slice_name": "Monte Carlo Simulation Results",
+      "viz_type": "histogram",
+      "datasource": "monte_carlo_results",
+      "params": {
+        "groupby": [],
+        "columns": ["simulated_outcome"],
+        "row_limit": 10000,
+        "bins": 50,
+        "color_scheme": "fire",
+        "normalize": true,
+        "cumulative": false,
+        "x_axis_format": "$,.0f"
+      },
+      "description": "Distribution of possible deal outcomes from Monte Carlo simulation"
+    },
+    {
+      "slice_name": "Scenario Comparison Matrix",
+      "viz_type": "heatmap",
+      "datasource": "scenario_comparison",
+      "params": {
+        "groupby": ["scenario_name", "metric_name"],
+        "metric": "normalized_value",
+        "normalize_across": "heatmap",
+        "xscale_interval": 1,
+        "yscale_interval": 1,
+        "color_scheme": "RdYlGn"
+      },
+      "description": "Normalized comparison of key metrics across different scenarios"
+    },
+    {
+      "slice_name": "Break-Even Analysis",
+      "viz_type": "line",
+      "datasource": "breakeven_analysis",
+      "params": {
+        "groupby": ["deal_name"],
+        "metric": "cumulative_cash_flow",
+        "granularity_sqla": "projection_date",
+        "time_grain_sqla": "P1Q",
+        "show_legend": true,
+        "line_interpolation": "linear",
+        "color_scheme": "supersetColors",
+        "y_axis_format": "$,.0f"
+      },
+      "description": "Cumulative cash flow projections showing break-even points"
+    },
+    {
+      "slice_name": "Sensitivity Tornado Chart",
+      "viz_type": "bar",
+      "datasource": "sensitivity_analysis",
+      "params": {
+        "groupby": ["variable_name"],
+        "metric": "impact_on_npv",
+        "order_desc": false,
+        "show_legend": false,
+        "color_scheme": "d3Category20b",
+        "y_axis_format": "$,.0f",
+        "show_bar_value": true,
+        "orientation": "horizontal"
+      },
+      "description": "Tornado chart showing sensitivity of NPV to key variables"
+    },
+    {
+      "slice_name": "Probability Distribution",
+      "viz_type": "area",
+      "datasource": "probability_distributions",
+      "params": {
+        "groupby": ["outcome_type"],
+        "metric": "probability_density",
+        "granularity_sqla": "outcome_value",
+        "time_grain_sqla": "P1D",
+        "show_legend": true,
+        "line_interpolation": "cardinal",
+        "color_scheme": "bnbColors",
+        "stack": "expand"
+      },
+      "description": "Probability distributions for different outcome scenarios"
+    },
+    {
+      "slice_name": "Decision Tree Visualization",
+      "viz_type": "treemap",
+      "datasource": "decision_tree_nodes",
+      "params": {
+        "groupby": ["decision_path", "outcome"],
+        "metric": "expected_value",
+        "color_scheme": "googleCategory20c",
+        "treemap_ratio": 1.618
+      },
+      "description": "Decision tree outcomes with expected values"
+    },
+    {
+      "slice_name": "Real Options Valuation",
+      "viz_type": "mixed_timeseries",
+      "datasource": "real_options_analysis",
+      "params": {
+        "groupby": ["option_type"],
+        "metrics": ["option_value"],
+        "secondary_metric": ["volatility"],
+        "granularity_sqla": "valuation_date",
+        "time_grain_sqla": "P1M",
+        "color_scheme": "fire",
+        "show_legend": true,
+        "line_interpolation": "linear"
+      },
+      "description": "Real options valuation showing option values and underlying volatility"
+    }
+  ],
+  "layout_positions": {
+    "CHART-1": {"x": 0, "y": 0, "w": 12, "h": 8},
+    "CHART-2": {"x": 0, "y": 8, "w": 6, "h": 8},
+    "CHART-3": {"x": 6, "y": 8, "w": 6, "h": 8},
+    "CHART-4": {"x": 0, "y": 16, "w": 8, "h": 8},
+    "CHART-5": {"x": 8, "y": 16, "w": 4, "h": 8},
+    "CHART-6": {"x": 0, "y": 24, "w": 12, "h": 8},
+    "CHART-7": {"x": 0, "y": 32, "w": 6, "h": 8},
+    "CHART-8": {"x": 6, "y": 32, "w": 6, "h": 8},
+    "CHART-9": {"x": 0, "y": 40, "w": 8, "h": 8},
+    "CHART-10": {"x": 8, "y": 40, "w": 4, "h": 8}
+  }
+}

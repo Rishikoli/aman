@@ -1,0 +1,150 @@
+{
+  "dashboard_title": "M&A Executive Dashboard",
+  "description": "Comprehensive M&A analytics dashboard for executive reporting",
+  "slug": "ma-executive-dashboard",
+  "published": true,
+  "charts": [
+    {
+      "slice_name": "Deal Pipeline Overview",
+      "viz_type": "pie",
+      "datasource": "deals",
+      "params": {
+        "groupby": ["status"],
+        "metric": "count",
+        "pie_label_type": "key_value",
+        "donut": true,
+        "show_legend": true,
+        "color_scheme": "bnbColors"
+      }
+    },
+    {
+      "slice_name": "Deal Value by Industry",
+      "viz_type": "bar",
+      "datasource": "companies_deals_view",
+      "params": {
+        "groupby": ["industry"],
+        "metric": "sum__deal_value",
+        "order_desc": true,
+        "show_legend": false,
+        "color_scheme": "supersetColors"
+      }
+    },
+    {
+      "slice_name": "Risk Assessment Heatmap",
+      "viz_type": "heatmap",
+      "datasource": "findings_summary_view",
+      "params": {
+        "groupby": ["category", "severity"],
+        "metric": "count",
+        "normalize_across": "heatmap",
+        "xscale_interval": 1,
+        "yscale_interval": 1
+      }
+    },
+    {
+      "slice_name": "Agent Performance Timeline",
+      "viz_type": "line",
+      "datasource": "agent_executions",
+      "params": {
+        "groupby": ["agent_type"],
+        "metric": "avg__duration_seconds",
+        "granularity_sqla": "start_time",
+        "time_grain_sqla": "P1D",
+        "show_legend": true,
+        "line_interpolation": "linear"
+      }
+    },
+    {
+      "slice_name": "Financial Metrics Comparison",
+      "viz_type": "compare",
+      "datasource": "financial_data",
+      "params": {
+        "groupby": ["company_id"],
+        "metric": ["revenue", "net_income", "total_assets"],
+        "time_grain_sqla": "P1Y",
+        "comparison_type": "values"
+      }
+    },
+    {
+      "slice_name": "Deal Completion Forecast",
+      "viz_type": "line",
+      "datasource": "timeline_estimates",
+      "params": {
+        "groupby": ["deal_id"],
+        "metric": "total_estimated_hours",
+        "granularity_sqla": "estimated_completion_date",
+        "time_grain_sqla": "P1W",
+        "show_legend": true,
+        "line_interpolation": "step-after"
+      }
+    }
+  ],
+  "layout": {
+    "CHART-1": {
+      "children": [],
+      "id": "CHART-1",
+      "meta": {
+        "chartId": 1,
+        "height": 50,
+        "sliceName": "Deal Pipeline Overview",
+        "width": 4
+      },
+      "type": "CHART"
+    },
+    "CHART-2": {
+      "children": [],
+      "id": "CHART-2",
+      "meta": {
+        "chartId": 2,
+        "height": 50,
+        "sliceName": "Deal Value by Industry",
+        "width": 8
+      },
+      "type": "CHART"
+    },
+    "CHART-3": {
+      "children": [],
+      "id": "CHART-3",
+      "meta": {
+        "chartId": 3,
+        "height": 50,
+        "sliceName": "Risk Assessment Heatmap",
+        "width": 6
+      },
+      "type": "CHART"
+    },
+    "CHART-4": {
+      "children": [],
+      "id": "CHART-4",
+      "meta": {
+        "chartId": 4,
+        "height": 50,
+        "sliceName": "Agent Performance Timeline",
+        "width": 6
+      },
+      "type": "CHART"
+    },
+    "CHART-5": {
+      "children": [],
+      "id": "CHART-5",
+      "meta": {
+        "chartId": 5,
+        "height": 50,
+        "sliceName": "Financial Metrics Comparison",
+        "width": 8
+      },
+      "type": "CHART"
+    },
+    "CHART-6": {
+      "children": [],
+      "id": "CHART-6",
+      "meta": {
+        "chartId": 6,
+        "height": 50,
+        "sliceName": "Deal Completion Forecast",
+        "width": 4
+      },
+      "type": "CHART"
+    }
+  }
+}

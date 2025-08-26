@@ -1,0 +1,30 @@
+{
+  "report_id": "sox_compliance_20250826_120704",
+  "report_type": "sox_compliance",
+  "generated_at": "2025-08-26T12:07:04.394312",
+  "period_start": "2025-08-25T12:07:04.393318",
+  "period_end": "2025-08-26T12:07:04.393318",
+  "metrics": {
+    "total_actions": 3,
+    "successful_actions": 2,
+    "failed_actions": 1,
+    "compliance_score": 66.66666666666666
+  },
+  "scope": {
+    "agents_involved": [
+      "legal_agent",
+      "operations_agent",
+      "finance_agent"
+    ],
+    "deals_analyzed": [
+      "deal_abc_corp_acquisition"
+    ]
+  },
+  "findings": [],
+  "recommendations": [
+    "Improve overall system reliability to achieve >95% success rate",
+    "Conduct immediate review of failed operations and implement corrective measures",
+    "Implement quarterly SOX compliance reviews",
+    "Enhance segregation of duties controls"
+  ]
+}

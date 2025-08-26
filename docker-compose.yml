@@ -117,11 +117,17 @@ services:
     environment:
       - SUPERSET_SECRET_KEY=aman_superset_secret_key
       - SUPERSET_CONFIG_PATH=/app/superset_config.py
+      - DATABASE_URL=postgresql://aman_user:aman_password@postgres:5432/aman_db
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     volumes:
       - ./docker/superset:/app
       - superset_data:/app/superset_home
+    entrypoint: ["/app/entrypoint.sh"]
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - aman_network

@@ -1,0 +1,4 @@
+Report ID,Type,Generated,Period Start,Period End,Total Actions,Successful,Failed,Compliance Score
+sox_compliance_20250826_120704,sox_compliance,2025-08-26T12:07:04.394312,2025-08-25T12:07:04.393318,2025-08-26T12:07:04.393318,3,2,1,66.67%
+
+Finding Type,Severity,Description,Recommendation

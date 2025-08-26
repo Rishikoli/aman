@@ -1,10 +1,17 @@
 # Superset configuration for AMAN
 import os
 
-# Database configuration
+# Database configuration - Use AMAN PostgreSQL database
 SQLALCHEMY_DATABASE_URI = os.getenv(
     'DATABASE_URL',
     'postgresql://aman_user:aman_password@postgres:5432/aman_db'
+)
+
+# Metadata database (separate from data sources)
+# Use SQLite for Superset's own metadata
+SUPERSET_METADATA_DB_URI = os.getenv(
+    'SUPERSET_METADATA_DB_URI',
+    'sqlite:////app/superset_home/superset.db'
 )
 
 # Redis configuration for caching

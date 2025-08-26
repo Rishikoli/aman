@@ -1,0 +1,223 @@
+{
+  "dashboard_title": "Comprehensive M&A Analysis Dashboard",
+  "description": "Advanced M&A analytics with scenario modeling and what-if analysis capabilities",
+  "slug": "comprehensive-ma-analysis",
+  "published": true,
+  "json_metadata": {
+    "color_scheme": "supersetColors",
+    "refresh_frequency": 300,
+    "timed_refresh_immune_slices": [],
+    "expanded_slices": {},
+    "label_colors": {},
+    "shared_label_colors": {},
+    "color_scheme_domain": [],
+    "cross_filters_enabled": true,
+    "native_filter_configuration": [
+      {
+        "id": "deal_status_filter",
+        "filterType": "filter_select",
+        "targets": [
+          {
+            "datasetId": 1,
+            "column": {
+              "name": "status"
+            }
+          }
+        ],
+        "defaultDataMask": {
+          "extraFormData": {},
+          "filterState": {
+            "value": null
+          }
+        },
+        "name": "Deal Status",
+        "description": "Filter by deal status"
+      },
+      {
+        "id": "industry_filter",
+        "filterType": "filter_select",
+        "targets": [
+          {
+            "datasetId": 1,
+            "column": {
+              "name": "acquirer_industry"
+            }
+          }
+        ],
+        "defaultDataMask": {
+          "extraFormData": {},
+          "filterState": {
+            "value": null
+          }
+        },
+        "name": "Industry",
+        "description": "Filter by industry sector"
+      },
+      {
+        "id": "date_range_filter",
+        "filterType": "filter_timerange",
+        "targets": [
+          {
+            "datasetId": 1,
+            "column": {
+              "name": "deal_created_at"
+            }
+          }
+        ],
+        "defaultDataMask": {
+          "extraFormData": {},
+          "filterState": {
+            "value": "No filter"
+          }
+        },
+        "name": "Date Range",
+        "description": "Filter by deal creation date"
+      }
+    ]
+  },
+  "charts": [
+    {
+      "slice_name": "Deal Value Distribution",
+      "viz_type": "histogram",
+      "datasource": "deals_overview",
+      "params": {
+        "groupby": [],
+        "columns": ["deal_value"],
+        "row_limit": 1000,
+        "bins": 20,
+        "color_scheme": "bnbColors",
+        "normalize": false,
+        "cumulative": false
+      },
+      "description": "Distribution of deal values across all transactions"
+    },
+    {
+      "slice_name": "Risk Severity Matrix",
+      "viz_type": "heatmap",
+      "datasource": "risk_assessment_summary",
+      "params": {
+        "groupby": ["risk_category", "severity"],
+        "metric": "sum__finding_count",
+        "normalize_across": "heatmap",
+        "xscale_interval": 1,
+        "yscale_interval": 1,
+        "color_scheme": "fire"
+      },
+      "description": "Risk findings heatmap by category and severity"
+    },
+    {
+      "slice_name": "Financial Performance Radar",
+      "viz_type": "radar",
+      "datasource": "financial_metrics_comparison",
+      "params": {
+        "groupby": ["company_name"],
+        "metrics": ["gross_margin", "operating_margin", "net_margin", "roe", "roa"],
+        "row_limit": 10,
+        "color_scheme": "googleCategory20c"
+      },
+      "description": "Multi-dimensional financial performance comparison"
+    },
+    {
+      "slice_name": "Deal Timeline Gantt",
+      "viz_type": "gantt",
+      "datasource": "deal_timeline_analysis",
+      "params": {
+        "groupby": ["deal_name"],
+        "start_date_col": "deal_start_date",
+        "end_date_col": "estimated_completion_date",
+        "color_scheme": "d3Category20",
+        "bar_height": 20
+      },
+      "description": "Deal timeline visualization with estimated completion dates"
+    },
+    {
+      "slice_name": "Agent Performance Sunburst",
+      "viz_type": "sunburst",
+      "datasource": "agent_performance",
+      "params": {
+        "groupby": ["agent_type", "agent_id"],
+        "metric": "avg__success_rate",
+        "color_scheme": "d3Category20b"
+      },
+      "description": "Hierarchical view of agent performance by type and individual agent"
+    },
+    {
+      "slice_name": "Industry Benchmarking",
+      "viz_type": "box_plot",
+      "datasource": "industry_benchmarks",
+      "params": {
+        "groupby": ["industry"],
+        "metrics": ["avg_gross_margin", "avg_operating_margin", "avg_net_margin"],
+        "whisker_options": "Tukey",
+        "color_scheme": "supersetColors"
+      },
+      "description": "Industry financial performance benchmarking with quartile analysis"
+    },
+    {
+      "slice_name": "Deal Success Prediction",
+      "viz_type": "scatter",
+      "datasource": "deal_timeline_analysis",
+      "params": {
+        "x": "estimated_duration_days",
+        "y": "completion_percentage",
+        "size": "total_agent_tasks",
+        "groupby": ["status"],
+        "color_scheme": "bnbColors",
+        "show_legend": true
+      },
+      "description": "Scatter plot showing relationship between deal duration and completion rate"
+    },
+    {
+      "slice_name": "Financial Trend Analysis",
+      "viz_type": "mixed_timeseries",
+      "datasource": "financial_metrics_comparison",
+      "params": {
+        "groupby": ["company_name"],
+        "metrics": ["revenue", "net_income"],
+        "secondary_metric": ["revenue_growth_rate"],
+        "granularity_sqla": "fiscal_year",
+        "time_grain_sqla": "P1Y",
+        "color_scheme": "googleCategory20c",
+        "show_legend": true,
+        "line_interpolation": "linear"
+      },
+      "description": "Revenue and growth trends with dual-axis visualization"
+    },
+    {
+      "slice_name": "Risk Impact Assessment",
+      "viz_type": "treemap",
+      "datasource": "risk_assessment_summary",
+      "params": {
+        "groupby": ["risk_category", "deal_name"],
+        "metric": "sum__finding_count",
+        "color_scheme": "fire",
+        "treemap_ratio": 1.618
+      },
+      "description": "Hierarchical view of risk distribution across deals and categories"
+    },
+    {
+      "slice_name": "Executive KPI Scorecard",
+      "viz_type": "big_number_total",
+      "datasource": "executive_summary",
+      "params": {
+        "metric": "total_deals",
+        "subheader": "Active Deals: {{ active_deals }} | Completed: {{ completed_deals }}",
+        "y_axis_format": ",d",
+        "color_scheme": "supersetColors"
+      },
+      "description": "High-level KPI summary for executive overview"
+    }
+  ],
+  "layout_positions": {
+    "CHART-1": {"x": 0, "y": 0, "w": 6, "h": 8},
+    "CHART-2": {"x": 6, "y": 0, "w": 6, "h": 8},
+    "CHART-3": {"x": 0, "y": 8, "w": 8, "h": 8},
+    "CHART-4": {"x": 8, "y": 8, "w": 4, "h": 8},
+    "CHART-5": {"x": 0, "y": 16, "w": 6, "h": 8},
+    "CHART-6": {"x": 6, "y": 16, "w": 6, "h": 8},
+    "CHART-7": {"x": 0, "y": 24, "w": 8, "h": 8},
+    "CHART-8": {"x": 8, "y": 24, "w": 4, "h": 8},
+    "CHART-9": {"x": 0, "y": 32, "w": 8, "h": 8},
+    "CHART-10": {"x": 8, "y": 32, "w": 4, "h": 4}
+  }
+}

@@ -9,6 +9,7 @@ const taskQueueRoutes = require('./taskQueue');
 const timelineRoutes = require('./timeline');
 const financialRoutes = require('./financial');
 const intelligentFinancialRoutes = require('./intelligentFinancial');
+const qaRoutes = require('./qa');
 const aiRoutes = require('../ai');
 
 // API version info
@@ -25,6 +26,7 @@ router.get('/', (req, res) => {
       timeline: '/api/v1/timeline',
       financial: '/api/v1/financial',
       intelligentFinancial: '/api/v1/intelligent-financial',
+      qa: '/api/v1/qa',
       ai: '/api/v1/ai'
     }
   });
@@ -38,6 +40,7 @@ router.use('/task-queue', taskQueueRoutes);
 router.use('/timeline', timelineRoutes);
 router.use('/financial', financialRoutes);
 router.use('/intelligent-financial', intelligentFinancialRoutes);
+router.use('/qa', qaRoutes);
 router.use('/ai', aiRoutes);
 
 module.exports = router;
