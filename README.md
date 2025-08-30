@@ -1,10 +1,5 @@
 # 🚀 AMAN - Autonomous M&A Navigator
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
-[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org/)
-[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://docker.com/)
-[![Next.js](https://img.shields.io/badge/Next.js-15-black.svg)](https://nextjs.org/)
 
 > **Autonomous M&A Navigator** - An AI-powered platform for comprehensive mergers and acquisitions due diligence, featuring advanced financial analysis, risk assessment, and intelligent automation.
 
@@ -306,18 +301,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **scikit-learn** for machine learning capabilities
 - **PostgreSQL** for robust data storage
 
-## 📞 Support
-
-- **Documentation**: [docs/](docs/)
-- **Issues**: [GitHub Issues](https://github.com/your-username/aman/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-username/aman/discussions)
-
 ---
 
-<div align="center">
-
-**Built with ❤️ for the M&A community**
-
-[🌟 Star this repo](https://github.com/your-username/aman) • [🐛 Report Bug](https://github.com/your-username/aman/issues) • [💡 Request Feature](https://github.com/your-username/aman/issues)
-
-</div>
