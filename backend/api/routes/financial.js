@@ -6,11 +6,13 @@
 const express = require('express');
 const FinancialDataService = require('../../services/financialDataService');
 const MLFinancialAnalysisService = require('../../services/mlFinancialAnalysisService');
-const { query } = require('../../database');
+const FinancialAnalysis = require('../../models/FinancialAnalysis');
+const { query, pool } = require('../../database');
 
 const router = express.Router();
 const financialDataService = new FinancialDataService();
 const mlAnalysisService = new MLFinancialAnalysisService();
+const financialAnalysisModel = new FinancialAnalysis(pool);
 
 /**
  * Test financial data sources connection
@@ -616,6 +618,378 @@ router.get('/ml-test', async (req, res) => {
     });
   }
 });
+
+/**
+ * M&A Analysis Endpoints
+ */
+
+/**
+ * Create M&A analysis for a deal
+ * POST /api/financial/ma-analysis
+ */
+router.post('/ma-analysis', async (req, res) => {
+  try {
+    const { acquirer, target, dealValue, analysisType = 'acquisition' } = req.body;
+
+    if (!acquirer || !target) {
+      return res.status(400).json({
+        success: false,
+        message: 'Both acquirer and target company information are required'
+      });
+    }
+
+    console.log(`[Financial API] Starting M&A analysis: ${acquirer.name} + ${target.name}`);
+
+    // Create or get companies
+    const acquirerCompany = await getOrCreateCompany(acquirer);
+    const targetCompany = await getOrCreateCompany(target);
+
+    // Create deal record
+    const dealResult = await query(
+      `INSERT INTO deals (name, description, acquirer_id, target_id, deal_value, status, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      [
+        `${acquirer.name} ${analysisType} ${target.name}`,
+        `M&A analysis between ${acquirer.name} and ${target.name}`,
+        acquirerCompany.id,
+        targetCompany.id,
+        dealValue || null,
+        'draft',
+        'ma-analyzer'
+      ]
+    );
+
+    const deal = dealResult.rows[0];
+
+    // Generate comprehensive financial analysis
+    const analysisData = await generateMAAnalysis(acquirerCompany, targetCompany, deal);
+
+    // Save analysis to database
+    const savedAnalysis = await financialAnalysisModel.createAnalysis(
+      deal.id,
+      targetCompany.id,
+      analysisData
+    );
+
+    res.json({
+      success: true,
+      message: 'M&A analysis completed successfully',
+      data: {
+        dealId: deal.id,
+        analysis: savedAnalysis,
+        acquirer: acquirerCompany,
+        target: targetCompany
+      }
+    });
+
+  } catch (error) {
+    console.error('[Financial API] M&A analysis failed:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'M&A analysis failed',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * Get financial analysis for a deal
+ * GET /api/deals/:dealId/financial-analysis
+ */
+router.get('/deals/:dealId/financial-analysis', async (req, res) => {
+  try {
+    const { dealId } = req.params;
+
+    console.log(`[Financial API] Retrieving financial analysis for deal: ${dealId}`);
+
+    const analysis = await financialAnalysisModel.getAnalysisByDealId(dealId);
+
+    if (!analysis) {
+      return res.status(404).json({
+        success: false,
+        message: 'Financial analysis not found for this deal'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Financial analysis retrieved successfully',
+      data: analysis
+    });
+
+  } catch (error) {
+    console.error('[Financial API] Failed to retrieve financial analysis:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve financial analysis',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * Get financial metrics for a deal
+ * GET /api/deals/:dealId/financial-metrics
+ */
+router.get('/deals/:dealId/financial-metrics', async (req, res) => {
+  try {
+    const { dealId } = req.params;
+    const { category } = req.query;
+
+    const analysis = await financialAnalysisModel.getAnalysisByDealId(dealId);
+    if (!analysis) {
+      return res.status(404).json({
+        success: false,
+        message: 'Financial analysis not found'
+      });
+    }
+
+    let metrics = await financialAnalysisModel.getMetricsByAnalysisId(analysis.id);
+    
+    if (category && category !== 'all') {
+      metrics = metrics.filter(m => m.category === category);
+    }
+
+    res.json({
+      success: true,
+      data: metrics
+    });
+
+  } catch (error) {
+    console.error('[Financial API] Failed to retrieve metrics:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve financial metrics',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * Get financial trends for a deal
+ * GET /api/deals/:dealId/financial-trends
+ */
+router.get('/deals/:dealId/financial-trends', async (req, res) => {
+  try {
+    const { dealId } = req.params;
+
+    const analysis = await financialAnalysisModel.getAnalysisByDealId(dealId);
+    if (!analysis) {
+      return res.status(404).json({
+        success: false,
+        message: 'Financial analysis not found'
+      });
+    }
+
+    const trends = await financialAnalysisModel.getTrendDataByAnalysisId(analysis.id);
+
+    res.json({
+      success: true,
+      data: trends
+    });
+
+  } catch (error) {
+    console.error('[Financial API] Failed to retrieve trends:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve financial trends',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * Get financial anomalies for a deal
+ * GET /api/deals/:dealId/financial-anomalies
+ */
+router.get('/deals/:dealId/financial-anomalies', async (req, res) => {
+  try {
+    const { dealId } = req.params;
+    const { severity } = req.query;
+
+    const analysis = await financialAnalysisModel.getAnalysisByDealId(dealId);
+    if (!analysis) {
+      return res.status(404).json({
+        success: false,
+        message: 'Financial analysis not found'
+      });
+    }
+
+    let anomalies = await financialAnalysisModel.getAnomaliesByAnalysisId(analysis.id);
+    
+    if (severity) {
+      const severityLevels = severity.split(',');
+      anomalies = anomalies.filter(a => severityLevels.includes(a.severity));
+    }
+
+    res.json({
+      success: true,
+      data: anomalies
+    });
+
+  } catch (error) {
+    console.error('[Financial API] Failed to retrieve anomalies:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve financial anomalies',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * Get financial forecasts for a deal
+ * GET /api/deals/:dealId/financial-forecasts
+ */
+router.get('/deals/:dealId/financial-forecasts', async (req, res) => {
+  try {
+    const { dealId } = req.params;
+    const { scenarios } = req.query;
+
+    const analysis = await financialAnalysisModel.getAnalysisByDealId(dealId);
+    if (!analysis) {
+      return res.status(404).json({
+        success: false,
+        message: 'Financial analysis not found'
+      });
+    }
+
+    let forecasts = await financialAnalysisModel.getForecastsByAnalysisId(analysis.id);
+    
+    if (scenarios) {
+      const scenarioList = scenarios.split(',');
+      forecasts = forecasts.filter(f => scenarioList.includes(f.scenario));
+    }
+
+    res.json({
+      success: true,
+      data: forecasts
+    });
+
+  } catch (error) {
+    console.error('[Financial API] Failed to retrieve forecasts:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve financial forecasts',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * Get risk assessment for a deal
+ * GET /api/deals/:dealId/risk-assessment
+ */
+router.get('/deals/:dealId/risk-assessment', async (req, res) => {
+  try {
+    const { dealId } = req.params;
+
+    const analysis = await financialAnalysisModel.getAnalysisByDealId(dealId);
+    if (!analysis) {
+      return res.status(404).json({
+        success: false,
+        message: 'Financial analysis not found'
+      });
+    }
+
+    const riskFactors = await financialAnalysisModel.getRiskFactorsByAnalysisId(analysis.id);
+    
+    // Calculate risk distribution
+    const riskDistribution = riskFactors.reduce((acc, risk) => {
+      const existing = acc.find(item => item.category === risk.category);
+      if (existing) {
+        existing.count++;
+        existing.averageScore = (existing.averageScore + risk.risk_score) / 2;
+      } else {
+        acc.push({
+          category: risk.category,
+          count: 1,
+          averageScore: risk.risk_score
+        });
+      }
+      return acc;
+    }, []);
+
+    const overallRiskScore = riskFactors.length > 0 
+      ? riskFactors.reduce((sum, risk) => sum + risk.risk_score, 0) / riskFactors.length
+      : 0;
+
+    const riskLevel = overallRiskScore > 70 ? 'critical' : 
+                     overallRiskScore > 50 ? 'high' : 
+                     overallRiskScore > 30 ? 'medium' : 'low';
+
+    const riskAssessment = {
+      overallRiskScore,
+      riskLevel,
+      riskFactors,
+      riskDistribution,
+      recommendations: [
+        'Establish comprehensive risk monitoring framework',
+        'Develop detailed integration timeline with key milestones',
+        'Create contingency plans for high-impact risks',
+        'Regular stakeholder communication and updates'
+      ]
+    };
+
+    res.json({
+      success: true,
+      data: riskAssessment
+    });
+
+  } catch (error) {
+    console.error('[Financial API] Failed to retrieve risk assessment:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve risk assessment',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * Helper Functions
+ */
+
+async function getOrCreateCompany(companyData) {
+  try {
+    // Try to find existing company
+    let company;
+    if (companyData.ticker) {
+      const result = await query(
+        'SELECT * FROM companies WHERE ticker_symbol = $1',
+        [companyData.ticker.toUpperCase()]
+      );
+      company = result.rows[0];
+    }
+
+    if (!company) {
+      // Create new company
+      const result = await query(
+        `INSERT INTO companies (name, ticker_symbol, description)
+         VALUES ($1, $2, $3) RETURNING *`,
+        [
+          companyData.name,
+          companyData.ticker?.toUpperCase() || null,
+          `Company created for M&A analysis`
+        ]
+      );
+      company = result.rows[0];
+    }
+
+    return company;
+  } catch (error) {
+    console.error('Error getting or creating company:', error);
+    throw error;
+  }
+}
+
+async function generateMAAnalysis(acquirer, target, deal) {
+  // This would integrate with real financial data services and ML models
+  // For now, we'll generate realistic mock data
+  
+  const MockFinancialDataService = require('../../services/mockFinancialDataService');
+  return MockFinancialDataService.generateFinancialAnalysis(deal.id, target.id);
+}
 
 /**
  * Health check endpoint

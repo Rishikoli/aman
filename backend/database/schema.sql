@@ -143,6 +143,101 @@ CREATE TABLE timeline_events (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Financial analyses table
+CREATE TABLE financial_analyses (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    deal_id UUID REFERENCES deals(id) ON DELETE CASCADE,
+    company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+    analysis_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    overall_score DECIMAL(5,2) DEFAULT 0,
+    risk_level VARCHAR(20) DEFAULT 'medium',
+    recommendation VARCHAR(20) DEFAULT 'review',
+    synergy_value DECIMAL(15,2) DEFAULT 0,
+    confidence_level DECIMAL(3,2) DEFAULT 0.5,
+    metadata JSONB DEFAULT '{}',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Financial metrics table
+CREATE TABLE financial_metrics (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    analysis_id UUID REFERENCES financial_analyses(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    value DECIMAL(15,4) NOT NULL,
+    unit VARCHAR(20),
+    category VARCHAR(50) NOT NULL,
+    trend VARCHAR(10),
+    trend_value VARCHAR(20),
+    benchmark DECIMAL(15,4),
+    description TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Financial trends table
+CREATE TABLE financial_trends (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    analysis_id UUID REFERENCES financial_analyses(id) ON DELETE CASCADE,
+    period VARCHAR(20) NOT NULL,
+    period_date DATE NOT NULL,
+    revenue DECIMAL(15,2),
+    net_income DECIMAL(15,2),
+    ebitda DECIMAL(15,2),
+    total_assets DECIMAL(15,2),
+    total_liabilities DECIMAL(15,2),
+    equity DECIMAL(15,2),
+    cash_flow DECIMAL(15,2),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Financial anomalies table
+CREATE TABLE financial_anomalies (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    analysis_id UUID REFERENCES financial_analyses(id) ON DELETE CASCADE,
+    type VARCHAR(50) NOT NULL,
+    severity VARCHAR(20) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    impact DECIMAL(15,2),
+    period VARCHAR(20),
+    metric VARCHAR(100),
+    expected_value DECIMAL(15,2),
+    actual_value DECIMAL(15,2),
+    variance DECIMAL(5,2),
+    recommendations JSONB DEFAULT '[]',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Financial forecasts table
+CREATE TABLE financial_forecasts (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    analysis_id UUID REFERENCES financial_analyses(id) ON DELETE CASCADE,
+    period VARCHAR(20) NOT NULL,
+    period_date DATE NOT NULL,
+    metric VARCHAR(100) NOT NULL,
+    forecast_value DECIMAL(15,2) NOT NULL,
+    confidence_lower DECIMAL(15,2),
+    confidence_upper DECIMAL(15,2),
+    confidence_level DECIMAL(3,2),
+    scenario VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Risk factors table
+CREATE TABLE risk_factors (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    analysis_id UUID REFERENCES financial_analyses(id) ON DELETE CASCADE,
+    category VARCHAR(50) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    probability DECIMAL(5,2) NOT NULL,
+    impact DECIMAL(5,2) NOT NULL,
+    risk_score DECIMAL(5,2) NOT NULL,
+    mitigation JSONB DEFAULT '[]',
+    status VARCHAR(20) DEFAULT 'identified',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Indexes for performance
 CREATE INDEX idx_deals_status ON deals(status);
 CREATE INDEX idx_deals_acquirer ON deals(acquirer_id);
@@ -171,6 +266,27 @@ CREATE INDEX idx_timeline_events_deal ON timeline_events(deal_id);
 CREATE INDEX idx_timeline_events_type ON timeline_events(event_type);
 CREATE INDEX idx_timeline_events_created_at ON timeline_events(created_at);
 
+-- Financial analysis indexes
+CREATE INDEX idx_financial_analyses_deal ON financial_analyses(deal_id);
+CREATE INDEX idx_financial_analyses_company ON financial_analyses(company_id);
+CREATE INDEX idx_financial_analyses_date ON financial_analyses(analysis_date);
+
+CREATE INDEX idx_financial_metrics_analysis ON financial_metrics(analysis_id);
+CREATE INDEX idx_financial_metrics_category ON financial_metrics(category);
+
+CREATE INDEX idx_financial_trends_analysis ON financial_trends(analysis_id);
+CREATE INDEX idx_financial_trends_date ON financial_trends(period_date);
+
+CREATE INDEX idx_financial_anomalies_analysis ON financial_anomalies(analysis_id);
+CREATE INDEX idx_financial_anomalies_severity ON financial_anomalies(severity);
+
+CREATE INDEX idx_financial_forecasts_analysis ON financial_forecasts(analysis_id);
+CREATE INDEX idx_financial_forecasts_scenario ON financial_forecasts(scenario);
+
+CREATE INDEX idx_risk_factors_analysis ON risk_factors(analysis_id);
+CREATE INDEX idx_risk_factors_category ON risk_factors(category);
+CREATE INDEX idx_risk_factors_score ON risk_factors(risk_score);
+
 -- Update triggers for updated_at columns
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -196,4 +312,7 @@ CREATE TRIGGER update_financial_data_updated_at BEFORE UPDATE ON financial_data
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_timeline_estimates_updated_at BEFORE UPDATE ON timeline_estimates
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_financial_analyses_updated_at BEFORE UPDATE ON financial_analyses
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

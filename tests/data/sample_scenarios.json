@@ -1,0 +1,67 @@
+{
+  "scenarios": [
+    {
+      "scenario_id": "tech_acquisition_success",
+      "name": "Successful Technology Acquisition",
+      "description": "Large tech company acquires AI startup with strong synergies",
+      "deal": {
+        "deal_name": "TechGiant Acquires AI Innovations",
+        "acquirer": {
+          "name": "TechGiant Corp",
+          "ticker": "TGNT",
+          "industry": "Technology",
+          "market_cap": 500000000000,
+          "employees": 150000,
+          "revenue": 100000000000
+        },
+        "target": {
+          "name": "AI Innovations Ltd",
+          "industry": "Artificial Intelligence",
+          "employees": 800,
+          "revenue": 150000000,
+          "valuation": 2000000000
+        },
+        "deal_value": 2500000000,
+        "expected_results": {
+          "financial_risk": "low",
+          "legal_risk": "low", 
+          "synergy_potential": "high",
+          "reputation_impact": "positive",
+          "operational_complexity": "medium"
+        }
+      }
+    },
+    {
+      "scenario_id": "cross_border_merger_complex",
+      "name": "Complex Cross-Border Merger",
+      "description": "US manufacturing company merges with European competitor",
+      "deal": {
+        "deal_name": "AmeriManufacturing Merges with EuroIndustrial",
+        "acquirer": {
+          "name": "AmeriManufacturing Inc",
+          "ticker": "AMFG",
+          "industry": "Manufacturing",
+          "market_cap": 25000000000,
+          "employees": 45000,
+          "revenue": 8000000000
+        },
+        "target": {
+          "name": "EuroIndustrial AG",
+          "ticker": "EIG",
+          "industry": "Industrial Equipment",
+          "employees": 25000,
+          "revenue": 5000000000,
+          "market_cap": 15000000000
+        },
+        "deal_value": 18000000000,
+        "expected_results": {
+          "financial_risk": "medium",
+          "legal_risk": "high",
+          "synergy_potential": "high",
+          "reputation_impact": "neutral",
+          "operational_complexity": "high"
+        }
+      }
+    }
+  ]
+}

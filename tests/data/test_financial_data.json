@@ -1,0 +1,93 @@
+{
+  "companies": {
+    "TECH001": {
+      "name": "TechGiant Corp",
+      "ticker": "TGNT",
+      "financial_statements": {
+        "2023": {
+          "revenue": 100000000000,
+          "gross_profit": 65000000000,
+          "operating_income": 25000000000,
+          "net_income": 20000000000,
+          "total_assets": 150000000000,
+          "total_debt": 30000000000,
+          "cash": 40000000000,
+          "shares_outstanding": 5000000000
+        },
+        "2022": {
+          "revenue": 85000000000,
+          "gross_profit": 55000000000,
+          "operating_income": 20000000000,
+          "net_income": 16000000000,
+          "total_assets": 130000000000,
+          "total_debt": 25000000000,
+          "cash": 35000000000,
+          "shares_outstanding": 5100000000
+        },
+        "2021": {
+          "revenue": 75000000000,
+          "gross_profit": 48000000000,
+          "operating_income": 18000000000,
+          "net_income": 14000000000,
+          "total_assets": 120000000000,
+          "total_debt": 20000000000,
+          "cash": 30000000000,
+          "shares_outstanding": 5200000000
+        }
+      },
+      "ratios": {
+        "debt_to_equity": 0.25,
+        "current_ratio": 2.1,
+        "roa": 0.13,
+        "roe": 0.17,
+        "gross_margin": 0.65,
+        "operating_margin": 0.25,
+        "net_margin": 0.20
+      }
+    },
+    "AI001": {
+      "name": "AI Innovations Ltd",
+      "financial_statements": {
+        "2023": {
+          "revenue": 150000000,
+          "gross_profit": 112500000,
+          "operating_income": 15000000,
+          "net_income": 12000000,
+          "total_assets": 200000000,
+          "total_debt": 20000000,
+          "cash": 50000000,
+          "shares_outstanding": 100000000
+        },
+        "2022": {
+          "revenue": 100000000,
+          "gross_profit": 75000000,
+          "operating_income": 8000000,
+          "net_income": 6000000,
+          "total_assets": 150000000,
+          "total_debt": 15000000,
+          "cash": 30000000,
+          "shares_outstanding": 95000000
+        },
+        "2021": {
+          "revenue": 60000000,
+          "gross_profit": 42000000,
+          "operating_income": 3000000,
+          "net_income": 2000000,
+          "total_assets": 100000000,
+          "total_debt": 10000000,
+          "cash": 20000000,
+          "shares_outstanding": 90000000
+        }
+      },
+      "ratios": {
+        "debt_to_equity": 0.11,
+        "current_ratio": 3.5,
+        "roa": 0.06,
+        "roe": 0.07,
+        "gross_margin": 0.75,
+        "operating_margin": 0.10,
+        "net_margin": 0.08
+      }
+    }
+  }
+}
